@@ -8,6 +8,7 @@ import type { ParsedOrder } from '../schemas/orderSchema'
 export function MessageParser() {
   const [message, setMessage] = useState('')
   const [domain, setDomain] = useState<Domain>('tailor')
+  const [receivedAt, setReceivedAt] = useState('2026-08-29')
   const [result, setResult] = useState<ParsedOrder | null>(null)
 
   function handleParse() {
@@ -18,7 +19,7 @@ export function MessageParser() {
       return
     }
 
-    setResult(parseMessage(trimmedMessage, domain))
+    setResult(parseMessage(trimmedMessage, domain, receivedAt))
   }
 
   return (
@@ -47,6 +48,19 @@ export function MessageParser() {
         <option value="electrician">Electrician</option>
         <option value="baker">Baker</option>
       </select>
+      <label className="message-label" htmlFor="received-at">
+  Message received date
+</label>
+
+<input
+  id="received-at"
+  type="date"
+  value={receivedAt}
+  onChange={(event) => {
+    setReceivedAt(event.target.value)
+    setResult(null)
+  }}
+/>
 
       <label className="message-label" htmlFor="customer-message">
         Customer’s WhatsApp message

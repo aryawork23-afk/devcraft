@@ -3,6 +3,7 @@ import {
   type ParsedOrder,
 } from '../schemas/orderSchema'
 import { extractAttributes } from './attributeExtraction'
+import { extractDueDate } from './dateExtraction'
 
 export type Domain = 'tailor' | 'tiffin' | 'electrician' | 'baker'
 
@@ -253,9 +254,11 @@ function findItems(text: string, domain: Domain) {
 export function parseMessage(
   rawMessage: string,
   domain: Domain,
+  receivedAt: string,
 ): ParsedOrder {
   const text = normalizeMessage(rawMessage)
   const items = findItems(text, domain)
+  const dateResult = extractDueDate(text, receivedAt)
 
   if (items.length === 1) {
   items[0].attributes = extractAttributes(text, domain)
@@ -269,11 +272,13 @@ export function parseMessage(
   const result = {
     customer: extractCustomer(rawMessage),
     items,
-    due_date: null,
+    due_date: dateResult.dueDate,
     amount: null,
     references_prior_order: referencesPriorOrder,
     confidence: items.length > 0 ? 0.72 : 0.2,
-    needs_clarification: items.length === 0,
+    needs_clarification:
+  items.length === 0 ||
+  (dateResult.deadlineMentioned && dateResult.dueDate === null),
   }
 
   return parsedOrderSchema.parse(result)
