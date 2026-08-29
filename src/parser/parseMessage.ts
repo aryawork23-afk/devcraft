@@ -189,20 +189,53 @@ if (contradictionMatch) {
   return quantityValue(afterMatch?.[1])
 }
 
-function extractCustomer(originalMessage: string): string | null {
+function extractCustomer(
+  originalMessage: string,
+): string | null {
   const cleaned = originalMessage.trim()
 
-  const customerPatterns = [
-    /^([a-zA-Z]+(?:\s+(?:ji|didi|bhai|aunty))?)\s+ke\s+liye\b/i,
-    /^([a-zA-Z]+(?:\s+(?:ji|didi|bhai|aunty))?)\s+bol\s+rah[ai]\b/i,
+  const forCustomerMatches = [
+    ...cleaned.matchAll(
+      /([a-zA-Z]+(?:\s+(?:ji|didi|bhai|aunty))?)\s+ke\s+liye\b/gi,
+    ),
   ]
 
-  for (const pattern of customerPatterns) {
-    const match = cleaned.match(pattern)
+  const validForCustomerMatches = forCustomerMatches.filter(
+    (match) => {
+      const textAfterMatch = cleaned
+        .slice(
+          (match.index ?? 0) + match[0].length,
+          (match.index ?? 0) + match[0].length + 12,
+        )
+        .toLowerCase()
 
-    if (match) {
-      return match[1].trim()
-    }
+      return !textAfterMatch.match(/^\s*nahi\b/)
+    },
+  )
+
+  if (validForCustomerMatches.length > 0) {
+    const finalMatch =
+      validForCustomerMatches[
+        validForCustomerMatches.length - 1
+      ]
+
+    return finalMatch[1].trim()
+  }
+
+  const speakingMatch = cleaned.match(
+    /^([a-zA-Z]+(?:\s+(?:ji|didi|bhai|aunty))?)\s+bol\s+rah[ai]\b/i,
+  )
+
+  if (speakingMatch) {
+    return speakingMatch[1].trim()
+  }
+
+  const beginningNameMatch = cleaned.match(
+    /^([A-Z][a-z]+(?:\s+(?:ji|didi|bhai|aunty))?)\s+(?=\d|ek\b|do\b|teen\b|char\b|paanch\b)/,
+  )
+
+  if (beginningNameMatch) {
+    return beginningNameMatch[1].trim()
   }
 
   return null
@@ -217,8 +250,22 @@ function findItems(text: string, domain: Domain) {
     for (const alias of aliases) {
       const index = text.indexOf(alias)
 
-      if (index !== -1) {
-        return [
+if (index !== -1) {
+  const textAfterAlias = text.slice(
+    index + alias.length,
+    index + alias.length + 20,
+  )
+
+  const itemIsNegated =
+    /^\s*nahi\s*(?:,|chahiye|chaiye|lena|banana|sirf|bas)/.test(
+      textAfterAlias,
+    )
+
+  if (itemIsNegated) {
+    return []
+  }
+
+  return [
           {
             description: definition.description,
             alias,

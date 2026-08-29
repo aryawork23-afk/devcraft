@@ -242,7 +242,39 @@ export function extractDueDate(
       deadlineMentioned: true,
     }
   }
+const ordinaryWeekdayMatches = [
+  ...text.matchAll(
+    new RegExp(`\\b(${weekdayPattern})(?:\\s+ko)?\\b`, 'g'),
+  ),
+]
 
+if (ordinaryWeekdayMatches.length > 0) {
+  const validWeekdayMatches = ordinaryWeekdayMatches.filter(
+    (match) => {
+      const nearbyText = text.slice(
+        match.index,
+        match.index + match[0].length + 12,
+      )
+
+      return !nearbyText.match(/^\S*(?:\s+ko)?\s+nahi\b/)
+    },
+  )
+
+  const selectedMatch =
+    validWeekdayMatches[
+      validWeekdayMatches.length - 1
+    ]
+
+  if (selectedMatch) {
+    return {
+      dueDate: strictlyNextWeekday(
+        anchor,
+        weekdayNumbers[selectedMatch[1]],
+      ),
+      deadlineMentioned: true,
+    }
+  }
+}
   const dayCountMatch = text.match(
     /(\d+)\s*din\s*(?:me|mein|tak)\b/,
   )
