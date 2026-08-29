@@ -2,6 +2,7 @@ import {
   parsedOrderSchema,
   type ParsedOrder,
 } from '../schemas/orderSchema'
+import { extractAttributes } from './attributeExtraction'
 
 export type Domain = 'tailor' | 'tiffin' | 'electrician' | 'baker'
 
@@ -118,16 +119,7 @@ const numberWords: Record<string, number> = {
   दस: 10,
 }
 
-const supportedColors = [
-  'navy blue',
-  'black',
-  'white',
-  'red',
-  'blue',
-  'green',
-  'maroon',
-  'cream',
-]
+
 
 function convertDevanagariDigits(value: string): string {
   const devanagariDigits = '०१२३४५६७८९'
@@ -265,22 +257,9 @@ export function parseMessage(
   const text = normalizeMessage(rawMessage)
   const items = findItems(text, domain)
 
-  if (items.length === 1 && domain === 'tailor') {
-    const color = supportedColors.find((possibleColor) =>
-      text.includes(possibleColor),
-    )
-
-    const chestMatch = text.match(/chest\s*(\d+)/)
-    const chest = chestMatch ? Number(chestMatch[1]) : null
-
-    if (color) {
-      items[0].attributes.color = color
-    }
-
-    if (chest !== null) {
-      items[0].attributes.chest = chest
-    }
-  }
+  if (items.length === 1) {
+  items[0].attributes = extractAttributes(text, domain)
+}
 
   const referencesPriorOrder =
     text.includes('last time') ||

@@ -346,3 +346,20 @@ button {
   line-height: 1.5;
   white-space: pre-wrap;
 }
+.parser-card select {
+  display: block;
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 12px;
+  border: 1px solid #cfd7e4;
+  border-radius: 12px;
+  outline: none;
+  background: #fbfcfe;
+  color: #172033;
+  font-size: 15px;
+}
+
+.parser-card select:focus {
+  border-color: #5936d9;
+  box-shadow: 0 0 0 3px rgb(89 54 217 / 12%);
+}
