@@ -164,6 +164,15 @@ function findQuantity(
 
   const beforeItem = text.slice(0, itemStart)
   const afterItem = text.slice(itemStart + itemAlias.length)
+  const contradictionMatch = beforeItem.match(
+  new RegExp(
+    `(?:^|\\s)(${quantityPattern})\\s+(?:ya|or)\\s+(${quantityPattern})\\s*$`,
+  ),
+)
+
+if (contradictionMatch) {
+  return quantityValue(contradictionMatch[1])
+}
 
   const beforeMatch = beforeItem.match(
     new RegExp(`(?:^|\\s)(${quantityPattern})\\s*$`),
