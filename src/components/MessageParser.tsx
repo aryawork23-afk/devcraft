@@ -1,9 +1,13 @@
 import { useState } from 'react'
-import { parseMessage } from '../parser/parseMessage'
+import {
+  parseMessage,
+  type Domain,
+} from '../parser/parseMessage'
 import type { ParsedOrder } from '../schemas/orderSchema'
 
 export function MessageParser() {
   const [message, setMessage] = useState('')
+  const [domain, setDomain] = useState<Domain>('tailor')
   const [result, setResult] = useState<ParsedOrder | null>(null)
 
   function handleParse() {
@@ -14,7 +18,7 @@ export function MessageParser() {
       return
     }
 
-    setResult(parseMessage(trimmedMessage))
+    setResult(parseMessage(trimmedMessage, domain))
   }
 
   return (
@@ -26,6 +30,24 @@ export function MessageParser() {
         </div>
       </div>
 
+      <label className="message-label" htmlFor="business-domain">
+        Business type
+      </label>
+
+      <select
+        id="business-domain"
+        value={domain}
+        onChange={(event) => {
+          setDomain(event.target.value as Domain)
+          setResult(null)
+        }}
+      >
+        <option value="tailor">Tailor</option>
+        <option value="tiffin">Tiffin service</option>
+        <option value="electrician">Electrician</option>
+        <option value="baker">Baker</option>
+      </select>
+
       <label className="message-label" htmlFor="customer-message">
         Customer’s WhatsApp message
       </label>
@@ -34,7 +56,7 @@ export function MessageParser() {
         id="customer-message"
         value={message}
         onChange={(event) => setMessage(event.target.value)}
-        placeholder="Example: 2 kurta navy blue chest 40"
+        placeholder="Paste the customer message here"
         rows={4}
       />
 
