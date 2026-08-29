@@ -1,5 +1,5 @@
 import './App.css'
-
+import { MessageParser } from './components/MessageParser'
 const sampleOrders = [
   {
     id: 'ORD-1001',
@@ -40,6 +40,8 @@ function App() {
           <h2>Here is today&apos;s work</h2>
         </section>
 
+        <MessageParser />
+        
         <section className="summary-grid">
           <article className="summary-card urgent">
             <span>Due today</span>
