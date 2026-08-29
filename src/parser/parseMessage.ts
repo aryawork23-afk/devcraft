@@ -4,6 +4,11 @@ import {
 } from '../schemas/orderSchema'
 import { extractAttributes } from './attributeExtraction'
 import { extractDueDate } from './dateExtraction'
+import {
+  extractAmount,
+  extractPriorOrderReference,
+  shouldNeedClarification,
+} from './messageRules'
 
 export type Domain = 'tailor' | 'tiffin' | 'electrician' | 'baker'
 
@@ -259,27 +264,33 @@ export function parseMessage(
   const text = normalizeMessage(rawMessage)
   const items = findItems(text, domain)
   const dateResult = extractDueDate(text, receivedAt)
+  const extractedAttributes = extractAttributes(text, domain)
 
   if (items.length === 1) {
-  items[0].attributes = extractAttributes(text, domain)
+  items[0].attributes = extractedAttributes
 }
 
-  const referencesPriorOrder =
-    text.includes('last time') ||
-    text.includes('pichli baar') ||
-    text.includes('pehle jaisa')
+ const referencesPriorOrder = extractPriorOrderReference(text)
+const amount = extractAmount(text)
+
+const needsClarification = shouldNeedClarification({
+  text,
+  domain,
+  items,
+  extractedAttributes,
+  deadlineMentioned: dateResult.deadlineMentioned,
+  dueDate: dateResult.dueDate,
+})
 
   const result = {
-    customer: extractCustomer(rawMessage),
-    items,
-    due_date: dateResult.dueDate,
-    amount: null,
-    references_prior_order: referencesPriorOrder,
-    confidence: items.length > 0 ? 0.72 : 0.2,
-    needs_clarification:
-  items.length === 0 ||
-  (dateResult.deadlineMentioned && dateResult.dueDate === null),
-  }
+  customer: extractCustomer(rawMessage),
+  items,
+  due_date: dateResult.dueDate,
+  amount,
+  references_prior_order: referencesPriorOrder,
+  confidence: items.length > 0 ? 0.72 : 0.2,
+  needs_clarification: needsClarification,
+}
 
-  return parsedOrderSchema.parse(result)
+return parsedOrderSchema.parse(result)
 }
