@@ -1,18 +1,7 @@
-export type ParsedItem = {
-  description: string
-  quantity: number
-  attributes: Record<string, string | number | boolean>
-}
-
-export type ParsedOrder = {
-  customer: string | null
-  items: ParsedItem[]
-  due_date: string | null
-  amount: number | null
-  references_prior_order: boolean
-  confidence: number
-  needs_clarification: boolean
-}
+import {
+  parsedOrderSchema,
+  type ParsedOrder,
+} from '../schemas/orderSchema'
 
 const supportedItems = [
   'kurta',
@@ -44,7 +33,7 @@ export function parseMessage(rawMessage: string): ParsedOrder {
   )
 
   if (!item) {
-    return {
+    return parsedOrderSchema.parse({
       customer: null,
       items: [],
       due_date: null,
@@ -52,7 +41,7 @@ export function parseMessage(rawMessage: string): ParsedOrder {
       references_prior_order: false,
       confidence: 0.2,
       needs_clarification: true,
-    }
+    })
   }
 
   const beforeItemPattern = new RegExp(`(\\d+)\\s+${item}`)
@@ -86,7 +75,7 @@ export function parseMessage(rawMessage: string): ParsedOrder {
     text.includes('pichli baar') ||
     text.includes('pehle jaisa')
 
-  return {
+  const result = {
     customer: null,
     items: [
       {
@@ -101,4 +90,6 @@ export function parseMessage(rawMessage: string): ParsedOrder {
     confidence: 0.7,
     needs_clarification: false,
   }
+
+  return parsedOrderSchema.parse(result)
 }

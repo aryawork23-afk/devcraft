@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { parseMessage, type ParsedOrder } from '../parser/parseMessage'
+import { parseMessage } from '../parser/parseMessage'
+import type { ParsedOrder } from '../schemas/orderSchema'
 
 export function MessageParser() {
   const [message, setMessage] = useState('')
