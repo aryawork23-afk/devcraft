@@ -327,6 +327,20 @@ const items = findItems(itemSearchText, domain)
 
   if (items.length === 1) {
   items[0].attributes = extractedAttributes
+} else {
+  const clauses = itemSearchText.split(
+    /\s*(?:,|\.|\baur\b|\band\b)\s*/,
+  )
+
+  for (const item of items) {
+    const clause = clauses.find((part) =>
+      part.includes(item.description),
+    )
+
+    if (clause) {
+      item.attributes = extractAttributes(clause, domain)
+    }
+  }
 }
 
  const referencesPriorOrder = extractPriorOrderReference(text)
