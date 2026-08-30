@@ -32,13 +32,22 @@ export function extractKnownCustomer(
 
   const candidates = customerVocabulary.flatMap((customer) =>
     customer.aliases.flatMap((alias) => {
-      const index = lowerMessage.indexOf(alias.toLowerCase())
+      
 
-      if (index === -1) {
-        return []
-      }
+    const escapedAlias = alias
+  .toLowerCase()
+  .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-      return [{
+const match = lowerMessage.match(
+  new RegExp(`\\b${escapedAlias}\\b`),
+)
+
+const index = match?.index ?? -1
+
+if (index === -1) {
+  return []
+}
+return [{
         customer: customer.name,
         alias,
         index,
