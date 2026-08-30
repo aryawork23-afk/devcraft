@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import {
