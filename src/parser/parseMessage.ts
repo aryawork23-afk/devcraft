@@ -9,6 +9,7 @@ import {
   extractPriorOrderReference,
   shouldNeedClarification,
 } from './messageRules'
+import { extractKnownCustomer } from './customerExtraction'
 
 export type Domain = 'tailor' | 'tiffin' | 'electrician' | 'baker'
 
@@ -339,7 +340,9 @@ const needsClarification = shouldNeedClarification({
 })
 
   const result = {
-  customer: extractCustomer(rawMessage),
+  customer:
+  extractKnownCustomer(rawMessage) ??
+  extractCustomer(rawMessage),
   items,
   due_date: dateResult.dueDate,
   amount,
