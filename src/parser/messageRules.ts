@@ -73,7 +73,13 @@ export function extractAmount(text: string): number | null {
       return amount
     }
   }
+const amountLimitMatch = text.match(
+  /\b(\d{2,})\s*(?:tak|ke andar)\b/,
+)
 
+if (amountLimitMatch) {
+  return Number(amountLimitMatch[1])
+}
   return null
 }
 
@@ -95,6 +101,8 @@ export function extractPriorOrderReference(text: string): boolean {
   }
 
   const positivePriorPatterns = [
+    'last wale jaisa',
+    'last wala jaisa',
     'last time jaisa',
     'last time wala',
     'pichli baar jaisa',
