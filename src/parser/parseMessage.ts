@@ -10,6 +10,7 @@ import {
   shouldNeedClarification,
 } from './messageRules'
 import { extractKnownCustomer } from './customerExtraction'
+import { normalizeItemAliases } from './itemAliasNormalization'
 
 export type Domain = 'tailor' | 'tiffin' | 'electrician' | 'baker'
 
@@ -319,7 +320,8 @@ export function parseMessage(
   receivedAt: string,
 ): ParsedOrder {
   const text = normalizeMessage(rawMessage)
-  const items = findItems(text, domain)
+const itemSearchText = normalizeItemAliases(text)
+const items = findItems(itemSearchText, domain)
   const dateResult = extractDueDate(text, receivedAt)
   const extractedAttributes = extractAttributes(text, domain)
 
